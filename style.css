@@ -1,0 +1,202 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-size: 4vmin;
+  font-family: Montserrat, sans-serif;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000033;
+  transition: background 3s;
+  user-select: none;
+}
+
+h1,
+h2 {
+  position: relative;
+  margin: 0;
+  text-align: center;
+  background: inherit;
+}
+
+h3 {
+  position: relative;
+  left: 0.3em;
+  margin-bottom: 0.7em;
+}
+
+strong {
+  user-select: text;
+}
+
+.board {
+  height: 24em;
+  width: 24em;
+  position: absolute;
+  background-blend-mode: multiply;
+  background-color: darkblue;
+  background-image: url("https://cdn.glitch.global/6db799a4-c85b-4ba2-a5a7-f24a96c6af6e/board.png");
+  background-size: cover;
+  transition: background-color 3s;
+}
+
+.piece {
+  height: 12.5%;
+  width: 12.5%;
+  position: absolute;
+  background-size: cover;
+}
+
+.action {
+  height: 12.5%;
+  width: 12.5%;
+  position: absolute;
+  opacity: 0.5;
+  background-color: white;
+  background-size: cover;
+}
+
+.settings {
+  height: 2em;
+  width: 2em;
+  position: fixed;
+  top: 1%;
+  right: 1%;
+  margin: 0;
+  background-image: url("https://cdn.glitch.global/6db799a4-c85b-4ba2-a5a7-f24a96c6af6e/settings.png");
+  background-size: cover;
+  cursor: pointer;
+  transition: opacity 0.5s;
+}
+
+.settings:hover {
+  opacity: 0.3;
+}
+
+.timer {
+  background-color: #34282c;
+  padding: 0.2em;
+  border-radius: 0.4em;
+  transition: opacity 0.5s;
+}
+
+.white {
+  color: black;
+  background-color: #fffff0;
+}
+
+.inactive {
+  opacity: 0.5;
+}
+
+.hidden {
+  display: none;
+}
+
+.blanket {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color: grey;
+}
+
+.settingsMenu {
+  position: absolute;
+  height: 23em;
+  width: 23em;
+  background-color: inherit;
+  border-radius: 1em;
+}
+
+.close {
+  position: absolute;
+  height: 1em;
+  width: 1em;
+  top: 0.5em;
+  right: 0.5em;
+  background-image: url("https://cdn.glitch.global/6db799a4-c85b-4ba2-a5a7-f24a96c6af6e/exit.png")
+}
+
+.title {
+  background: none;
+  top: 0.1em;
+}
+
+.options {
+  display: flex;
+}
+
+.option {
+  position: relative;
+  width: 3em;
+  top: -0.5em;
+  text-align: center;
+  padding: 0.2em;
+  margin: 0.2em;
+  border-style: solid;
+  border-color: white;
+  border-radius: 1em;
+  cursor: pointer;
+}
+
+.selected {
+  color: black;
+  background-color: white;
+}
+
+.start {
+  width: 8em;
+}
+
+.menu {
+  position: fixed;
+  bottom: 1%;
+  left: 1%;
+}
+
+.resign {
+  height: 1.5em;
+  width: 1.5em;
+  background-image: url("https://cdn.glitch.global/6db799a4-c85b-4ba2-a5a7-f24a96c6af6e/resign.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  transition: opacity 0.5s;
+}
+
+.resign:hover {
+  opacity: 0.3;
+}
+
+@media screen and (orientation: portrait) {
+  .oppTimer {
+    top: -9em;
+    left: -5em;
+  }
+
+  .yourTimer {
+    top: 9em;
+    left: 5em;
+  }
+}
+
+@media screen and (orientation: landscape) {
+  .oppTimer {
+    left: -8.2em;
+    top: -7.2em;
+  }
+
+  .yourTimer {
+    left: 8.2em;
+    top: 7.2em;
+  }
+}
+
+@media screen and (max-height: 400px) and (orientation: landscape) {
+  html,
+  body {
+    font-size: 3.6vmin;
+  }
+}
