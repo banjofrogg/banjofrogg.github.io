@@ -71,7 +71,7 @@
     setTimeout(() => {
       channel.send(timer);
       channel.send(player * -1);
-    });
+    }, 500);
     menu.children[2].classList.add("hidden");
     menu.children[0].classList.remove("hidden");
     newGame();
