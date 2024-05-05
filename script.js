@@ -85,7 +85,7 @@
   
   function onMessage(msg) {
     console.log(msg);
-    if(msg.includes(",")) nextTurn(...msg.split(","));
+    if(msg.includes(",")) nextTurn(...msg.split(",").map(e => parseInt(e)));
     else if(msg == "resign") endGame((player == 1 ? "Black" : "White") + " Resigned");
     else if(isNaN(parseInt(msg))) {
       
