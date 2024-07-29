@@ -406,89 +406,70 @@
   }
   
   async function connect(localId, remoteId, host) {
-    p2p = new RTCPeerConnection({ 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] });
+    p2p = new RTCPeerConnection({ "iceServers": [{ "urls": "stun:stun.l.google.com:19302" }] });
     var ice = [];
-    p2p.addEventListener('icecandidate', e => {
+    p2p.addEventListener("icecandidate", e => {
       if(e.candidate) ice.push(e.candidate);
+    });
+    p2p.addEventListener("iceconnectionstatechange", e => {
+      if(e.target.iceConnectionState == "failed") e.target.restartIce();
     });
     if(!window.candidates) window.candidates = null;
     if(host) {
       channel = p2p.createDataChannel("data");
-      channel.addEventListener('message', e => onMessage(e.data));
+      channel.addEventListener("message", e => onMessage(e.data));
       const offer = await p2p.createOffer();
       p2p.setLocalDescription(offer);
       await signal(localId, JSON.stringify(offer));
-      const answer = await receive(remoteId, candidates ?? "connected");
-      var desc = new RTCSessionDescription(JSON.parse(answer));
-      try {
-        var ufrag = desc.sdp.split("ice-ufrag:")[1].split("\r\n")[0];
-        var pwd = desc.sdp.split("ice-pwd:")[1].split("\r\n")[0];
-        desc.sdp = desc.sdp.replace(ufrag, ufrag.replaceAll(" ", "+")).replace(pwd, pwd.replaceAll(" ", "+"));
-      } catch {
-        console.log("No ice candidates found");
-      }
-      p2p.setRemoteDescription(desc);
-      if(p2p.iceGatheringState == "complete") await signal(localId, JSON.stringify(ice));
-      else await new Promise(r => {
-        p2p.addEventListener('icegatheringstatechange', async e => {
-          if(e.target.iceGatheringState == "complete") r(await signal(localId, JSON.stringify(ice)));
-        })
-      });
-      candidates = await receive(remoteId, answer);
-      JSON.parse(candidates).forEach(async e => {
-        try {
-          await p2p.addIceCandidate(e);
-        } catch {
-          console.log("Cannot add candidate: " + JSON.stringify(e));
-        }
-      });
     } else {
-      p2p.addEventListener('datachannel', e => {
+      p2p.addEventListener("datachannel", e => {
         channel = e.channel;
-        channel.addEventListener('message', e => onMessage(e.data));
+        channel.addEventListener("message", e => onMessage(e.data));
       });
-      const offer = await receive(remoteId, candidates ?? "connected");
-      var desc = new RTCSessionDescription(JSON.parse(offer));
-      try {
-        var ufrag = desc.sdp.split("ice-ufrag:")[1].split("\r\n")[0];
-        var pwd = desc.sdp.split("ice-pwd:")[1].split("\r\n")[0];
-        desc.sdp = desc.sdp.replace(ufrag, ufrag.replaceAll(" ", "+")).replace(pwd, pwd.replaceAll(" ", "+"));
-      } catch {
-        console.log("No ice candidates found");
-      }
-      p2p.setRemoteDescription(desc);
+    }
+    var res = await receive(remoteId, candidates ?? "connected");
+    var desc = new RTCSessionDescription(JSON.parse(res));
+    try {
+      var ufrag = desc.sdp.split("ice-ufrag:")[1].split("\r\n")[0];
+      var pwd = desc.sdp.split("ice-pwd:")[1].split("\r\n")[0];
+      desc.sdp = desc.sdp.replace(ufrag, ufrag.replaceAll(" ", "+")).replace(pwd, pwd.replaceAll(" ", "+"));
+    } catch {
+      console.log("No ice candidates found");
+    }
+    p2p.setRemoteDescription(desc);
+    if(!host) {
       const answer = await p2p.createAnswer();
       p2p.setLocalDescription(answer);
       await signal(localId, JSON.stringify(answer));
       await new Promise(r => setTimeout(() => r(1), 500));
-      if(p2p.iceGatheringState == "complete") await signal(localId, JSON.stringify(ice));
-      else await new Promise(r => {
-        p2p.addEventListener('icegatheringstatechange', async e => {
-          if(e.target.iceGatheringState == "complete") r(await signal(localId, JSON.stringify(ice)));
-        })
-      });
-      candidates = await receive(remoteId, offer);
-      JSON.parse(candidates).forEach(async e => {
-        try {
-          await p2p.addIceCandidate(e);
-        } catch {
-          console.log("Cannot add candidate: " + JSON.stringify(e));
-        }
-      });
     }
+    if(p2p.iceGatheringState == "complete") await signal(localId, JSON.stringify(ice));
+    else await new Promise(r => {
+      p2p.addEventListener("icegatheringstatechange", async e => {
+        if(e.target.iceGatheringState == "complete") r(await signal(localId, JSON.stringify(ice)));
+      })
+    });
+    candidates = await receive(remoteId, res);
+    JSON.parse(candidates).forEach(async e => {
+      try {
+        await p2p.addIceCandidate(e);
+      } catch {
+        console.log("Cannot add candidate: " + JSON.stringify(e));
+      }
+    });
     if(p2p.connectionState == "connected") {
       setTimeout(() => signal(localId, "connected"), 200);
       candidates = null;
       return true;
     } else if(p2p.connectionState == "failed") return connect(localId, remoteId, host);
     else return new Promise(r => {
-      p2p.addEventListener('connectionstatechange', async e => {
+      p2p.addEventListener("connectionstatechange", async e => {
         if(e.target.connectionState == "connected") setTimeout(async () => {
           await signal(localId, "connected");
           candidates = null;
           r(true);
         }, 200);
-        else if(p2p.connectionState == "failed") return connect(localId, remoteId, host);
+        else if(e.target.connectionState == "failed") return connect(localId, remoteId, host);
       })
     });
   }
