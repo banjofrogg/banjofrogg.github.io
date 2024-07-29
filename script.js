@@ -41,7 +41,7 @@
     settings.classList.toggle("hidden");
     blanket.classList.toggle("hidden");
   }));
-
+  
   [...settings.children[2].children].forEach((e, i) => e.addEventListener("click", () => {
     timer = [60000, 300000, 600000, 5999000][i];
     [...settings.children[2].children].forEach(e => e.classList.remove("selected"));
@@ -88,7 +88,7 @@
     if(msg.includes(",")) nextTurn(...msg.split(",").map(e => parseInt(e)));
     else if(msg == "resign") endGame((player == 1 ? "Black" : "White") + " Resigned");
     else if(isNaN(parseInt(msg))) {
-      
+  
     } else if(msg > 59999) timer = parseInt(msg);
     else {
       player = parseInt(msg);
@@ -104,13 +104,13 @@
     if(playerChoice == 0) player = Math.random() >= 0.5 ? 1 : -1;
     else player = playerChoice;
   }
-
+  
   function changeTheme(bgColor, boardColor) {
     document.documentElement.style.background = bgColor;
     document.body.style.background = bgColor;
     pieces.style.backgroundColor = boardColor;
   }
-
+  
   function newGame() {
     let boardState = [
       new Uint8Array([4, 2, 3, ...(player > 0 ? [5, 6] : [6, 5]), 3, 2, 4]),
@@ -135,7 +135,7 @@
           return row[col](e);
         }
       },
-
+  
       set(row, col, piece) {
         if(row[col] > 0) pieces.removeChild(document.elementFromPoint(pieces.offsetLeft + col * .125 * pieces.offsetWidth + 3, pieces.offsetTop + boardState.indexOf(row) * .125 * pieces.offsetHeight + 3));
         row[col] = piece == 0 ? 0 : piece + 3 - 3 * turn;
@@ -217,7 +217,7 @@
       if(mode == "remote") channel.send([selected[0], selected[1], ...loc].map(e => 7 - e));
     }
   }
-
+  
   function nextTurn(x1, y1, x2, y2) {
     if(x1 != 10) {
       if(board[x1][y1] == 6) {
@@ -232,10 +232,10 @@
       }
       board[x2][y2] = board[x1][y1];
       board[x1][y1] = 0;
-      if(board[0][0] != 4) castle[player * -1][0] = false;
-      if(board[0][7] != 4) castle[player * -1][1] = false;
-      if(board[7][0] != 4) castle[player][0] = false;
-      if(board[7][7] != 4) castle[player][1] = false;
+      if(board[player == 1 ? 0 : 7][0] != (turn == 1 ? 10 : 4)) castle[player * turn * -1][0] = false;
+      if(board[player == 1 ? 0 : 7][7] != (turn == 1 ? 10 : 4)) castle[player * turn * -1][1] = false;
+      if(board[player == 1 ? 7 : 0][0] != (turn == 1 ? 4 : -2)) castle[player * turn][0] = false;
+      if(board[player == 1 ? 7 : 0][7] != (turn == 1 ? 4 : -2)) castle[player * turn][1] = false;
       if(board[x2][y2] == 1) {
         if(x2 + "," + y2 == enpassant) {
           board[x2 + (turn == player ? 1 : -1)][y2] = 0;
@@ -261,7 +261,7 @@
       timers[1].classList.toggle("inactive");
     }
   }
-
+  
   function getMoves(color) {
     let activePieces = [];
     for(let i = 0; i < 8; ++i)
@@ -285,13 +285,13 @@
       }
     return activePieces.filter(e => e[1].length > 0);
   }
-
+  
   function scout(i, j, color, board) {
     if(board[i][j] == 0) return 2;
     else if((board[i][j] > 6 || board[i][j] < 0) == (color == turn)) return 1;
     return 0;
   }
-
+  
   function spaces(piece, i, j, color, board) {
     let moves = [];
     switch(piece) {
@@ -381,7 +381,7 @@
     }
     return moves;
   }
-
+  
   function isChecked(i, j, board, color, test) {
     var enemyPieces = [];
     for(let k = 0; k < 8; k++)
@@ -395,14 +395,14 @@
   async function signal(id, data) {
     await fetch("https://docs.google.com/forms/d/e/1FAIpQLSf29AcWwZNfxguSkLVmMmLMBe9b-nQhtB5tb5o9cYSRq_ijSA/formResponse?usp=pp_url&entry.469488510=" + id + ";" + data + "&submit=Submit", { "mode": "no-cors" });
   }
-
+  
   async function receive(id, prev) {
     var data = await fetch("https://docs.google.com/spreadsheets/d/1zoXkKl_o3CrK1haw1NYa-KOXFcc5CzlkknIZlIq53Pg/gviz/tq?tqx=out:csv").then(e => e.text());
     data = data.slice(1,-1).replaceAll('""','"').split('"\n"').slice(1).map(e => e.match(/\","(.*)/)[1]).toReversed();
     let res = data.find(e => e.split(";")[0] == id);
     return !res || res.split(";")[1] == prev ? await new Promise(r => setTimeout(() => r(receive(id, prev)), 300)) : res.split(";")[1];
   }
-
+  
   async function connect(localId, remoteId, host) {
     p2p = new RTCPeerConnection({ 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] });
     var ice = [];
@@ -506,4 +506,4 @@
       }, 500);
     } else await connect(id, "h" + id, false);
   })();
-})()
+})();
