@@ -108,6 +108,7 @@ strong {
   width: 23em;
   background-color: inherit;
   border-radius: 1em;
+  z-index: 1;
 }
 
 .close {
